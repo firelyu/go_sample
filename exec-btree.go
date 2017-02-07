@@ -1,9 +1,8 @@
 package main
 
 import (
-	"golang.org/x/tour/tree"
 	"fmt"
-
+	"golang.org/x/tour/tree"
 )
 
 // Walk walks the tree t sending all values
@@ -28,18 +27,22 @@ func Same(t1, t2 *tree.Tree) bool {
 	ch1 := make(chan int)
 	ch2 := make(chan int)
 
-	go Walk(t1, ch1)
-	go Walk(t2, ch2)
+	go func() {
+		Walk(t1, ch1)
+		close(ch1)
+	}()
+	go func() {
+		Walk(t2, ch2)
+		close(ch2)
+	}()
 
 	var s1, s2 []int
-	for i := 0; i < 10; i++ {
-		s1 = append(s1, <-ch1)
+	for v := range ch1 {
+		s1 = append(s1, v)
 	}
-	//fmt.Println(s1)
-	for i := 0; i < 10; i++ {
-		s2 = append(s2, <-ch2)
+	for v := range ch2 {
+		s2 = append(s2, v)
 	}
-	//fmt.Println(s2)
 
 	if len(s1) != len(s2) {
 		return false
@@ -54,20 +57,20 @@ func Same(t1, t2 *tree.Tree) bool {
 	return true
 }
 
-
 func main() {
 	ch := make(chan int)
 
-	go Walk(tree.New(5), ch)
+	// Get help from the following link.
+	// http://stackoverflow.com/questions/42093495/use-range-channel-in-go-error-fatal#comment-71365649
+	go func() {
+		Walk(tree.New(3), ch)
+		close(ch)
+	}()
 
-	//for v := range ch {
-	//	fmt.Println(v)
-	//}
-
-	for i := 0; i < 10; i++ {
-		fmt.Println(<-ch)
+	for v := range ch {
+		fmt.Println(v)
 	}
 
-	res := Same(tree.New(91), tree.New(1))
+	res := Same(tree.New(1), tree.New(1))
 	fmt.Println(res)
 }
