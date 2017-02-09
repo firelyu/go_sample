@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	templates  *template.Template
+	templates *template.Template
 	validPaths *regexp.Regexp
 )
 
@@ -97,6 +97,10 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if !validPaths.MatchString(r.URL.Path) {
+		http.NotFound(w, r)
+		return
+	}
 	http.Redirect(w, r, "/view/"+HOMEPAGE, http.StatusFound)
 }
 
@@ -107,7 +111,7 @@ func main() {
 		TEMPLATE_DIR+"/view.html",
 	))
 
-	validPaths = regexp.MustCompile("^/(edit|view|save)/([a-zA-Z0-9]*)$")
+	validPaths = regexp.MustCompile("^/(edit|view|save)/([a-zA-Z0-9]*)$|^/$")
 
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
