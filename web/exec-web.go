@@ -12,8 +12,8 @@ const (
 	SUFFIX       = ".txt"
 	PERMISSION   = 0600
 	LISTEN_PORT  = ":8080"
-	TEMPLATE_DIR = "web/tmpl"
-	FILE_DIR     = "web/data"
+	TEMPLATE_DIR = "tmpl"
+	FILE_DIR     = "data"
 	HOMEPAGE     = "frontpage"
 )
 
