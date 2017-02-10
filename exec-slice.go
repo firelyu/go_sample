@@ -38,6 +38,25 @@ func doubleSlice2(s interface{}) (interface{}, error) {
 	return t, nil
 }
 
+
+// http://stackoverflow.com/questions/42151307/how-to-determine-the-element-type-of-slice-interface#answer-42151765
+// Call reflect.MakeSlice() and reflect.SliceOf()
+func doubleSlice3(s interface{}) (interface{}, error) {
+	if reflect.TypeOf(s).Kind() != reflect.Slice {
+		err := errors.New("The interface is not a slice.")
+		return nil, err
+	}
+
+	v := reflect.ValueOf(s)
+	newLength := v.Len()
+	newCapacity := (v.Cap() + 1) * 2
+	elementType := reflect.TypeOf(s).Elem()
+
+	t := reflect.MakeSlice(reflect.SliceOf(elementType), newLength, newCapacity)
+	reflect.Copy(t, v)
+	return t.Interface(), nil
+}
+
 func main() {
 	//s1 := []int{10,11,12,13,14}
 	//for i := range s1 {
@@ -53,7 +72,7 @@ func main() {
 	//s4 := []int32{31, 32, 33, 34}
 
 	s5:=[]float32{51, 52, 53, 54}
-	s6, _ := doubleSlice2(s5)
+	s6, _ := doubleSlice3(s5)
 	//s4 := doubleSlice2(s2)
 	fmt.Println(s5)
 	fmt.Println(s6)
