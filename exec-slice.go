@@ -83,7 +83,7 @@ func CopyAllDigit(file string) ([][]byte, error)  {
 	if err != nil {
 		return nil, err
 	}
-	matches := digitRegexp.FindAll(content, len(content))
+	matches := digitRegexp.FindAll(content, 10)
 	var m [][]byte
 	for _, v1 := range matches {
 		m1 := make([]byte, len(v1))
@@ -92,6 +92,28 @@ func CopyAllDigit(file string) ([][]byte, error)  {
 	}
 
 	return m, nil
+}
+
+// https://blog.golang.org/slices
+type sliceHeader struct {
+	Length int
+	Capacity int
+	ZeroerElement *byte
+}
+
+func AddOneToEachElement(s []byte) {
+	for i := range s {
+		s[i]++
+	}
+}
+
+func SubtractOneFromLength(s []byte) []byte {
+	return s[:len(s) - 1]
+}
+
+func PtrSubtractOneFromLength(ps *[]byte) {
+	slices := *ps
+	*ps = slices[:len(slices) - 1]
 }
 
 func main() {
@@ -116,10 +138,24 @@ func main() {
 	//fmt.Printf("%v, len(%d), cap(%d)\n", s5, len(s5), cap(s5))
 	//fmt.Printf("%v, len(%d), cap(%d)\n", s6, reflect.ValueOf(s6).Len(), reflect.ValueOf(s6).Cap())
 
-	file := "numbers.txt"
-	p, _ := CopyDigit(file)
-	fmt.Printf("CopyDigit(%s) is %s\n", file, p)
+	//file := "numbers.txt"
+	//p, _ := CopyDigit(file)
+	//fmt.Printf("CopyDigit(%s) is %s\n", file, p)
+	//
+	//m, _ := CopyAllDigit(file)
+	//fmt.Printf("CopyAllDigit(%s) is %s\n", file, m)
 
-	m, _ := CopyAllDigit(file)
-	fmt.Printf("CopyAllDigit(%s) is %s\n", file, m)
+	var buf [256]byte
+	s := buf[100:110]
+	for i, _ := range s{
+		s[i] = byte(i)
+	}
+	fmt.Println("Init slice", s)
+	//AddOneToEachElement(s)
+	//fmt.Println("Add one for each element", s)
+
+	fmt.Println("Before: len(slice) =", len(s))
+	PtrSubtractOneFromLength(&s)
+	fmt.Println("After:  len(slice) =", len(s))
+	//fmt.Println("After:  len(newSlice) =", len(newSlice))
 }
