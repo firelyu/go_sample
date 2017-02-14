@@ -19,7 +19,7 @@ func download(url string, pch *chan int) {
 	fmt.Println(url)
 	//fmt.Println("len(ch) is", len(*pch))
 
-	time.Sleep(time.Duration(rand.Intn(300)) * time.Microsecond)
+	time.Sleep(time.Duration(rand.Intn(300)) * time.Nanosecond)
 
 	// Complete all the jobs and receive from the channel.
 	<- *pch
@@ -62,7 +62,7 @@ func createRoutinePool(pch *chan int, max int, fn func(string, *chan int))  {
 
 	// Call len() to check the channel is empty
 	for len(*pch) != 0 {
-		time.Sleep(100 * time.Microsecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
