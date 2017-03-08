@@ -2,7 +2,6 @@ package encode_test
 
 import (
 	"testing"
-	"fmt"
 	. "github.com/firelyu/gotour/encode"
 	"strconv"
 )
@@ -87,9 +86,9 @@ func init()  {
 }
 
 func dumpError(t *testing.T, base64 *encodeBase64) {
-	t.Errorf("The raw is %s\n", string(base64.Raw))
-	t.Errorf("The expected encode is %s\n", string(base64.Encode))
-	t.Errorf("The error encode is %s\n", string(EncodeBase64(base64.Raw)))
+	t.Errorf("The raw is >%s<\n", string(base64.Raw))
+	t.Errorf("The expected encode is >%s<\n", string(base64.Encode))
+	t.Errorf("The error encode is    >%s<\n", string(EncodeBase64(base64.Raw)))
 	t.FailNow()
 }
 
@@ -112,7 +111,7 @@ func TestEncodeBase64(t *testing.T)  {
 		for i := 0; i < len(out); i++ {
 			if out[i] != base64.Encode[i] {
 				t.Errorf("The %d char is not right.", i)
-				t.Errorf("The expected char is %c, the output is %c",
+				t.Errorf("The expected char is >%c<, the output is >%c<",
 					base64.Encode[i], out[i])
 				dumpError(t, base64)
 			}
@@ -145,36 +144,50 @@ func TestDecodeBase64(t *testing.T)  {
 		for i := 0; i < len(raw); i++ {
 			if raw[i] != base64.Raw[i] {
 				t.Errorf("The %d char is not right.", i)
-				t.Errorf("The expected char is %c, the output is %c",
+				t.Errorf("The expected char is >%c<, the output is >%c<",
 					base64.Raw[i], raw[i])
 				pass = false
 			}
 		}
 errout:
 		if pass != true {
-			t.Errorf("The encode is %s\n", string(base64.Encode))
-			t.Errorf("The expected raw is %s\n", string(base64.Raw))
-			t.Errorf("The output raw is %s\n", string(raw))
+			t.Errorf("The encode is >%s<\n", string(base64.Encode))
+			t.Errorf("The expected raw is >%s<\n", string(base64.Raw))
+			t.Errorf("The output raw is   >%s<\n", string(raw))
 			t.FailNow()
 		}
 
-		fmt.Printf("The encode is %s\n", string(base64.Encode))
-		fmt.Printf("The expected raw is >%s<\n", string(base64.Raw))
-		fmt.Printf("The output raw is   >%s<\n", string(raw))
-		fmt.Println()
+		//fmt.Printf("The encode is %s\n", string(base64.Encode))
+		//fmt.Printf("The expected raw is >%s<\n", string(base64.Raw))
+		//fmt.Printf("The output raw is   >%s<\n", string(raw))
+		//fmt.Println()
 	}
 }
 
-func benchmarkBase(b *testing.B, raw []byte)  {
+func benchmarkEncodeBase(b *testing.B, raw []byte, fn func([]byte) []byte)  {
 	for i := 0; i < b.N; i ++ {
-		EncodeBase64(raw)
+		fn(raw)
 	}
 }
 
-func BenchmarkEncodeBase64 (b *testing.B) {
+func BenchmarkEncodeBase64(b *testing.B) {
 	for _, base64 := range base64List {
-		b.Run("len(raw) is " + strconv.Itoa(len(base64.Raw)), func (b *testing.B){
-			benchmarkBase(b, base64.Raw)
+		b.Run("EncodeBase64 length" + strconv.Itoa(len(base64.Raw)), func (b *testing.B){
+			benchmarkEncodeBase(b, base64.Raw, EncodeBase64)
+		})
+	}
+}
+
+func benchmarkDecodeBase(b *testing.B, encode []byte, fn func([]byte) ([]byte, error))  {
+	for i := 0; i < b.N; i ++ {
+		fn(encode)
+	}
+}
+
+func BenchmarkDecodeBase64(b *testing.B)  {
+	for _, base64 := range base64List {
+		b.Run("DecodeBase64 length" + strconv.Itoa(len(base64.Encode)), func (b *testing.B){
+			benchmarkDecodeBase(b, base64.Encode, DecodeBase64)
 		})
 	}
 }

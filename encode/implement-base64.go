@@ -9,13 +9,24 @@ const (
 	paddingChar = '='
 )
 
+var (
+	decodeMap map[byte]uint
+)
+
 func byteAt(i uint8) byte {
 	return []byte(encodeStd)[i]
 }
 
-// don't check the c is valid.
+// indexOf() don't check the c is valid.
 // call ValidBase64() before call the func.
 func indexOf(c byte) uint {
+	return decodeMap[c]
+}
+
+// indexOfSlow() don't check the c is valid.
+// call ValidBase64() before call the func.
+// indexOfSlow() use loop to find the index, not map.
+func indexOfSLow(c byte) uint {
 	var i uint
 	for i = 0; i < uint(len(encodeStd)); i++ {
 		if []byte(encodeStd)[i] == c {
@@ -24,6 +35,13 @@ func indexOf(c byte) uint {
 	}
 
 	return i
+}
+
+func init() {
+	decodeMap = make(map[byte]uint)
+	for i, c := range []byte(encodeStd) {
+		decodeMap[c] = uint(i)
+	}
 }
 
 func EncodeBase64(src []byte) []byte {
@@ -119,7 +137,6 @@ func DecodeBase64(src []byte) ([]byte, error) {
 	var dst []byte
 	for i := 0; i < len(src); i += 4 {
 		group := (indexOf(src[i]) & 0x3f << 18 | indexOf(src[i+1]) << 12 | indexOf(src[i+2]) << 6 | indexOf(src[i+3]))
-		group &= 0xffffff
 
 		dst = append(dst, byte(group >> 16 & 0xff))
 		if src[i+2] == paddingChar {
