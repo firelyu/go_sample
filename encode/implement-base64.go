@@ -49,8 +49,8 @@ func EncodeBase64(src []byte) []byte {
 	var dst []byte
 	for i := 0; i < n; i += 3 {
 		var c byte
-		// convert the []byte to uint, uint is 64bit.
-		group := uint(src[i]) << 16 | uint(src[i+1]) << 8 | uint(src[i+2])
+		// convert the []byte to uint, uint32 is 32bit.
+		group := uint32(src[i]) << 16 | uint32(src[i+1]) << 8 | uint32(src[i+2])
 
 		c = byte(group >> 18 & 0x3f)
 		dst = append(dst, byteAt(c))
@@ -71,9 +71,9 @@ func EncodeBase64(src []byte) []byte {
 		return dst
 	}
 
-	lastGroup := uint(src[n]) << 16
+	lastGroup := uint32(src[n]) << 16
 	if remain == 2 {
-		lastGroup |= uint(src[n+1]) << 8
+		lastGroup |= uint32(src[n+1]) << 8
 	}
 
 	c := byte(lastGroup >> 18 & 0x3f)
