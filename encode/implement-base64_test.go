@@ -2,7 +2,7 @@ package encode_test
 
 import (
 	"testing"
-	. "github.com/firelyu/gotour/encode"
+	. "github.com/firelyu/go_sample/encode"
 	"strconv"
 )
 

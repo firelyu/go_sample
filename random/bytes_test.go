@@ -1,7 +1,7 @@
 package random_test
 
 import (
-	. "github.com/firelyu/gotour/random"
+	. "github.com/firelyu/go_sample/random"
 	"strconv"
 	"testing"
 )
