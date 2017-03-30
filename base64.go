@@ -1,18 +1,48 @@
 package main
 
 import (
-	"github.com/firelyu/go_sample/encode"
-	"fmt"
+    "bufio"
+    "fmt"
+    "github.com/firelyu/go_sample/encode"
+    "io"
+    "os"
 )
 
+func usage() {
+    fmt.Printf("    %s [<file>]\n", os.Args[0])
+    fmt.Printf("        - Decode the file or stdin with base64.\n", os.Args[0])
+    os.Exit(1)
+}
+
 func main() {
-	raw := "common"
-	code := encode.EncodeBase64([]byte(raw))
-	fmt.Println(string(code))
+    buf := make([]byte, 4<<20)
+    var r *bufio.Reader
 
-	c := "N2RhNGRlMTFhZjY0MzJhN2RmNTRiM2FiY2UxNzczYzNlNzYyNWZmODp7InVzZXJuYW1lIjoiY29tbW9uIiwidWlkIjoiZmRkODUxMzQtMDFmZC00MGQzLWFiYWItYWYwMWRiYjc4MTg2IiwicHJpdmlsZWdlcyI6IndyaXRlIiwidG9rZW4iOiJkMzcxMjcyYmI0ZmM0ODcxYjQzMmU0NTllYmYzYTMwYzZmZGQ4NTEzNDgyODQ5ZTJjMDFmZDQwZDM1OWFhNGJmNWFiYWJhZjAxYjExYmQ5ZjdkYmI3ODE4NmU4ZGE5YmIyIiwicm9sZSI6Im5vcm1hbCIsImlzc3VlX3RpbWUiOiIxNDg5NzMyMTI4IiwiZXhwaXJlX3RpbWUiOiIxODAwIiwicmVmcmVzaF90b2tlbiI6ImJlODIzMGEzZjRlMzRiNjI5YzRjZTJkZDBjMjI4ZmYyNjUwMjBhZGU2MzFmNGJmNDg4NTM1ZDQifQ=="
-	p, _ := encode.DecodeBase64([]byte(c))
-	fmt.Println(string(p))
+    switch len(os.Args) {
+    case 1:
+        // read from pipe
+        r = bufio.NewReader(os.Stdin)
+    case 2:
+        // read from file
+        f, err := os.Open(os.Args[1])
+        if err != nil {
+            fmt.Println(err)
+        }
 
+        r = bufio.NewReader(f)
+    default:
+        usage()
+    }
 
+    n, err := r.Read(buf)
+    if err != nil && err != io.EOF {
+        fmt.Println(err)
+    }
+
+    p, err := encode.DecodeBase64(buf[:n-1])
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    fmt.Println(string(p))
 }
